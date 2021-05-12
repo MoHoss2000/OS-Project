@@ -3,22 +3,18 @@ import java.util.*;
 
 public class Interpreter {
 
-    private static final List acceptableInstructions = Arrays.asList("print", "assign", "add", "writeFile", "readFile", "input");
+    private static final List<String> acceptableInstructions = Arrays.asList("print", "assign", "add",
+            "writeFile", "readFile", "input");
     Stack<String> stack;
     Hashtable<String, String> variables;
 
     public Interpreter() {
-        stack = new Stack<String>();
-        variables = new Hashtable<String, String>();
+        stack = new Stack<>();
+        variables = new Hashtable<>();
     }
 
     public void print(String argument) {
-        if (variables.containsKey(argument)) {
-            System.out.println(variables.get(argument));
-        } else {
-            System.out.println(argument);
-
-        }
+        System.out.println(variables.getOrDefault(argument, argument));
     }
 
     public void assign(String varName, String argument) {
@@ -30,46 +26,27 @@ public class Interpreter {
     }
 
     public String readFile(String argument) throws IOException {
-        String filePath;
-
-        if (variables.containsKey(argument)) {
-            filePath = variables.get(argument);
-        } else {
-            filePath = argument;
-        }
+        String filePath = variables.getOrDefault(argument, argument);
 
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         StringBuilder stringBuilder = new StringBuilder();
-        String line = null;
-        String ls = System.getProperty("line.separator");
+        String line;
         while ((line = reader.readLine()) != null) {
             stringBuilder.append(line);
-            stringBuilder.append(ls);
+            stringBuilder.append("\n");
         }
 
         // delete the last new line separator
         stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         reader.close();
 
-        String content = stringBuilder.toString();
-        return content;
+        return stringBuilder.toString();
     }
 
     public void writeFile(String arg1, String arg2) {
-        String filePath;
-        String dataToWrite;
 
-        if (variables.containsKey(arg1)) {
-            filePath = variables.get(arg1);
-        } else {
-            filePath = arg1;
-        }
-
-        if (variables.containsKey(arg2)) {
-            dataToWrite = variables.get(arg2);
-        } else {
-            dataToWrite = arg2;
-        }
+        String filePath = variables.getOrDefault(arg1, arg1);
+        String dataToWrite = variables.getOrDefault(arg2, arg2);
 
 
         try (PrintWriter out = new PrintWriter(filePath)) {
@@ -80,25 +57,17 @@ public class Interpreter {
     }
 
     public void add(String arg1, String arg2) {
-        int no1;
-        int no2;
-
-        no1 = Integer.parseInt(variables.get(arg1));
-
-        if (variables.containsKey(arg2)) {
-            no2 = Integer.parseInt(variables.get(arg2));
-        } else {
-            no2 = Integer.parseInt(arg2);
-        }
+        int no1 = Integer.parseInt(variables.get(arg1));
+        int no2 = Integer.parseInt(variables.getOrDefault(arg2, arg2));
 
         int res = no1 + no2;
-        variables.put(arg1, String.valueOf(res));
-
+        variables.put(arg1, Integer.toString(res));
     }
 
 
     public void runInstruction(String instruction) {
-        String[] terms = instruction.split(" ");
+        String[] terms = instruction.trim().split("\\s+");
+
         for (String term : terms) {
             stack.push(term);
         }
@@ -106,7 +75,7 @@ public class Interpreter {
         String op1 = "";
         String op2 = "";
 
-        while (stack.size() > 0) {
+        while (!stack.isEmpty()) {
             String term = stack.pop();
 
             if (acceptableInstructions.contains(term)) {
@@ -122,7 +91,7 @@ public class Interpreter {
                         break;
                     case "input":
                         Scanner sc = new Scanner(System.in);
-                        stack.push(sc.next());
+                        stack.push(sc.nextLine());
                         break;
                     case "readFile":
                         try {
@@ -151,12 +120,10 @@ public class Interpreter {
                     op2 = term;
             }
 
-//            System.out.println(variables);
         }
     }
 
     public void runProgram(String programFilePath) {
-        File file = new File(programFilePath);
         try {
             File myObj = new File(programFilePath);
             Scanner myReader = new Scanner(myObj);
@@ -175,9 +142,15 @@ public class Interpreter {
         Interpreter interpreter = new Interpreter();
 
         String program1 = "src/Program 1.txt";
-		String program2 = "src/Program 2.txt";
+        String program2 = "src/Program 2.txt";
         String program3 = "src/Program 3.txt";
 
         interpreter.runProgram(program1);
+
+//        try {
+//            System.out.println(interpreter.readFile("src/test.txt"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 }
