@@ -1,7 +1,0 @@
-print Enter_Path_1st_file
-assign a readFile input
-print Enter_Path_2st_file
-assign b readFile input
-add a b
-print Enter_Path_output_file
-writeFile input a
