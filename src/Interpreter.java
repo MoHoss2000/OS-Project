@@ -27,7 +27,7 @@ public class Interpreter {
 
     public String readFile(String argument) throws IOException {
         String filePath = variables.getOrDefault(argument, argument);
-
+        filePath +=".txt";
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         StringBuilder stringBuilder = new StringBuilder();
         String line;
@@ -47,7 +47,7 @@ public class Interpreter {
 
         String filePath = variables.getOrDefault(arg1, arg1);
         String dataToWrite = variables.getOrDefault(arg2, arg2);
-
+        filePath += ".txt";
 
         try (PrintWriter out = new PrintWriter(filePath)) {
             out.println(dataToWrite);
@@ -98,7 +98,8 @@ public class Interpreter {
                             stack.push(readFile(op1));
                             op1 = "";
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            System.out.println("The system cannot find the file specified");
+//                            e.printStackTrace();
                         }
                         break;
                     case "writeFile":
@@ -145,7 +146,7 @@ public class Interpreter {
         String program2 = "src/Program 2.txt";
         String program3 = "src/Program 3.txt";
 
-        interpreter.runProgram(program1);
+        interpreter.runProgram(program3);
 
 //        try {
 //            System.out.println(interpreter.readFile("src/test.txt"));
