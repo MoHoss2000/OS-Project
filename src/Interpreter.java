@@ -6,7 +6,11 @@ public class Interpreter {
     private static final List<String> acceptableInstructions = Arrays.asList("print", "assign", "add",
             "writeFile", "readFile", "input");
     Stack<String> stack;
-    Hashtable<String, String> variables;
+    Queue<Integer> readyQueue;
+    Pair[] memory;
+    final static int memSize = 500;
+    final static int procSize = 100;
+    final static int varStart = 20;
 
     public Interpreter() {
         stack = new Stack<>();
@@ -25,9 +29,10 @@ public class Interpreter {
         }
     }
 
-    public String readFile(String argument) throws IOException {
-        String filePath = variables.getOrDefault(argument, argument);
-        filePath +=".txt";
+    public String readFile(String argument, int pid) throws IOException {
+        String filePath = getVariable(pid, argument);
+
+        filePath += ".txt";
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         StringBuilder stringBuilder = new StringBuilder();
         String line;
@@ -43,10 +48,12 @@ public class Interpreter {
         return stringBuilder.toString();
     }
 
-    public void writeFile(String arg1, String arg2) {
+    public void writeFile(String arg1, String arg2, int pid) {
 
-        String filePath = variables.getOrDefault(arg1, arg1);
-        String dataToWrite = variables.getOrDefault(arg2, arg2);
+//        String filePath = variables.getOrDefault(arg1, arg1);
+//        String dataToWrite = variables.getOrDefault(arg2, arg2);
+        String filePath = getVariable(pid, arg1);
+        String dataToWrite = getVariable(pid, arg2);
         filePath += ".txt";
 
         try (PrintWriter out = new PrintWriter(filePath)) {
@@ -56,13 +63,15 @@ public class Interpreter {
         }
     }
 
-    public void add(String arg1, String arg2) {
-        int no1 = Integer.parseInt(variables.get(arg1));
-        int no2 = Integer.parseInt(variables.getOrDefault(arg2, arg2));
+    public void add(String arg1, String arg2, int pid) {
+        int no1 = Integer.parseInt(getVariable(pid, arg1));
+        int no2 = Integer.parseInt(getVariable(pid, arg2));
 
         int res = no1 + no2;
-        variables.put(arg1, Integer.toString(res));
+//        variables.put(arg1, Integer.toString(res));
+        assign(arg1, Integer.toString(res), pid);
     }
+
 
 
     public void runInstruction(String instruction) {
@@ -81,11 +90,11 @@ public class Interpreter {
             if (acceptableInstructions.contains(term)) {
                 switch (term) {
                     case "print":
-                        print(op1);
+                        print(op1, pid);
                         op1 = "";
                         break;
                     case "assign":
-                        assign(op2, op1);
+                        assign(op2, op1, pid);
                         op1 = "";
                         op2 = "";
                         break;
@@ -95,7 +104,7 @@ public class Interpreter {
                         break;
                     case "readFile":
                         try {
-                            stack.push(readFile(op1));
+                            stack.push(readFile(op1, pid));
                             op1 = "";
                         } catch (IOException e) {
                             System.out.println("The system cannot find the file specified");
@@ -103,12 +112,12 @@ public class Interpreter {
                         }
                         break;
                     case "writeFile":
-                        writeFile(op2, op1);
+                        writeFile(op2, op1, pid);
                         op1 = "";
                         op2 = "";
                         break;
                     case "add":
-                        add(op2, op1);
+                        add(op2, op1, pid);
                         op1 = "";
                         op2 = "";
                         break;
@@ -146,7 +155,7 @@ public class Interpreter {
         String program2 = "src/Program 2.txt";
         String program3 = "src/Program 3.txt";
 
-        interpreter.runProgram(program3);
+        interpreter.runAllPrograms();
 
 //        try {
 //            System.out.println(interpreter.readFile("src/test.txt"));
