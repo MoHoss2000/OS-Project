@@ -37,7 +37,7 @@ public class Interpreter {
 
 
     public void print(String argument, int pid) {
-        System.out.println(getVariable(pid, argument));
+        System.out.println("   " + getVariable(pid, argument));
     }
 
 
